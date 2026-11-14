@@ -1,0 +1,21 @@
+server:
+  port: 7074
+
+spring:
+  application:
+    name: Order-MS
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ecom
+    username: root
+    password: root
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+razorpay:
+  key:
+    id: rzp_test_T89FBUpGjjuOYa
+    secret: 2npH3MdRHXaJHcThy9vEmIxy
