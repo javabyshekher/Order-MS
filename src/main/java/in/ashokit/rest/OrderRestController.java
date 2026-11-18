@@ -6,9 +6,12 @@ import in.ashokit.dto.PurchaseOrderRequestDto;
 import in.ashokit.dto.PurchaseOrderResponseDto;
 import in.ashokit.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,10 +48,15 @@ public class OrderRestController {
 
         OrderDto updatedOrder = orderService.updateOrder(orderId, orderDto);
 
+        // calling Notifications Microservice
+        ParameterizedTypeReference<ApiResponse<String>> typeReference = new ParameterizedTypeReference<ApiResponse<String>>() {};
+        ResponseEntity<ApiResponse<String>> re = new RestTemplate().exchange("http://localhost:7075/api/notification/order-confirmation/"+orderId, HttpMethod.POST, null, typeReference);
+        String msg = re.getBody().getMessage();
+
         ApiResponse<OrderDto> response = new ApiResponse<>();
         if (updatedOrder != null) {
             response.setStatusCode(200);
-            response.setMessage("Order Updated Successfully");
+            response.setMessage("Order Updated Successfully, " + msg);
             response.setData(updatedOrder);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
@@ -65,10 +73,15 @@ public class OrderRestController {
 
         OrderDto cancelledOrder = orderService.cancelOrder(orderId);
 
+        // calling Notifications Microservice
+        ParameterizedTypeReference<ApiResponse<String>> typeReference = new ParameterizedTypeReference<ApiResponse<String>>() {};
+        ResponseEntity<ApiResponse<String>> re = new RestTemplate().exchange("http://localhost:7075/api/notification/cancel-order-notification/"+orderId, HttpMethod.POST, null, typeReference);
+        String msg = re.getBody().getMessage();
+
         ApiResponse<OrderDto> response = new ApiResponse<>();
         if (cancelledOrder != null) {
             response.setStatusCode(200);
-            response.setMessage("Order Cancelled Successfully");
+            response.setMessage("Order Cancelled Successfully, " + msg);
             response.setData(cancelledOrder);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } else {
